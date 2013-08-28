@@ -16,11 +16,24 @@ gem "lita-github-commits"
 
 ## Configuration
 
-TODO: Describe any configuration attributes the plugin exposes.
+### Required attributes
+
+* `repos` (Hash) - A map of repositories to allow notifications for and the chat rooms to post them in. The keys should be strings in the format "github_username/repository_name" and the values should be either a string room name or an array of string room names. Default: `{}`.
+
+### Example
+
+``` ruby
+Lita.configure do |config|
+  config.handlers.github_commits.repos = {
+    "username/repo1" => "#someroom",
+    "username/repo2" => ["#someroom", "#someotherroom"]
+  }
+end
+```
 
 ## Usage
 
-TODO: Describe the plugin's features and how to use them.
+You will need to add a GitHub Webhook url that points to: `http://address.of.lita/github-commits`
 
 ## License
 

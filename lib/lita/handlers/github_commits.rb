@@ -30,7 +30,7 @@ module Lita
         message = format_message(payload)
 
         rooms.each do |room|
-          target = Source.new(nil, room)
+          target = Source.new(room: room)
           robot.send_message(target, message)
         end
       end

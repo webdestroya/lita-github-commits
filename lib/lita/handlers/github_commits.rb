@@ -11,9 +11,17 @@ module Lita
       http.post "/github-commits", :receive
 
       def receive(request, response)
-        payload = parse_payload(request.params['payload']) or return
-        repo = get_repo(payload)
-        notify_rooms(repo, payload)
+        event_type = request.env['HTTP_X_GITHUB_EVENT'] || 'unknown'
+        if event_type == "push"
+          payload = parse_payload(request.params['payload']) or return
+          repo = get_repo(payload)
+          notify_rooms(repo, payload)
+        elsif event_type == "ping"
+          response.status = 200
+          response.write "Working!"
+        else
+          response.status = 404
+        end
       end
 
       private

@@ -7,6 +7,7 @@ describe Lita::Handlers::GithubCommits, lita_handler: true do
 
     let(:request) do
       request = double("Rack::Request")
+      allow(request).to receive(:env).and_return({"HTTP_X_GITHUB_EVENT" => "push"})
       allow(request).to receive(:params).and_return(params)
       request
     end
@@ -307,6 +308,15 @@ describe Lita::Handlers::GithubCommits, lita_handler: true do
       JSON
       end
 
+      let(:ping_payload) do
+      <<-JSON.chomp
+{
+   "zen":"Non-blocking is better than blocking",
+   "hook_id":12345
+}
+      JSON
+      end
+
 
       context "request with commits" do
         before do
@@ -367,6 +377,35 @@ describe Lita::Handlers::GithubCommits, lita_handler: true do
           expect(Lita.logger).to receive(:error) do |error|
             expect(error).to include("Could not parse JSON payload from Github")
           end
+          subject.receive(request, response)
+        end
+      end
+
+
+      context "ping event" do
+        before do
+          Lita.config.handlers.github_commits.repos["octokitty/testing"] = "#baz"
+          allow(params).to receive(:[]).with("payload").and_return(ping_payload)
+          allow(request).to receive(:env).and_return({"HTTP_X_GITHUB_EVENT" => "ping"})
+        end
+
+        it "handles the ping event" do
+          expect(Lita.logger).to_not receive(:error)
+          expect(response).to receive(:write).with("Working!")
+          subject.receive(request, response)
+        end
+      end
+
+      context "unknown event" do
+        before do
+          Lita.config.handlers.github_commits.repos["octokitty/testing"] = "#baz"
+          allow(params).to receive(:[]).with("payload").and_return(ping_payload)
+          allow(request).to receive(:env).and_return({"HTTP_X_GITHUB_EVENT" => "fakefake"})
+        end
+
+        it "handles the ping event" do
+          expect(Lita.logger).to_not receive(:error)
+          expect(response).to_not receive(:write)
           subject.receive(request, response)
         end
       end

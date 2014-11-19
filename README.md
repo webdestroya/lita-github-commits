@@ -31,6 +31,8 @@ Lita.configure do |config|
 end
 ```
 
+**Note**: For HipChat, the room should be the JID of the HipChat room (eg. `123_development@conf.hipchat.com`)
+
 ## Usage
 
 You will need to add a GitHub Webhook url that points to: `http://address.of.lita/github-commits`

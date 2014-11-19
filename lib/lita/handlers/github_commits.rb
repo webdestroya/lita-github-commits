@@ -46,7 +46,8 @@ module Lita
       def format_message(payload)
         commits = payload['commits']
         if commits.size > 0
-          "[GitHub] Got #{commits.size} new commits from #{commits.first['author']['name']} on #{payload['repository']['owner']['name']}/#{payload['repository']['name']}"
+          commit_pluralization = commits.size > 1 ? 'commits' : 'commit'
+          "[GitHub] Got #{commits.size} new #{commit_pluralization} from #{commits.first['author']['name']} on #{payload['repository']['owner']['name']}/#{payload['repository']['name']}"
         elsif payload['created']
           "[GitHub] #{payload['pusher']['name']} created: #{payload['ref']}: #{payload['base_ref']}"
         elsif payload['deleted']

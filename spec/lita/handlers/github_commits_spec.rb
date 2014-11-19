@@ -328,6 +328,7 @@ describe Lita::Handlers::GithubCommits, lita_handler: true do
           expect(robot).to receive(:send_message) do |target, message|
             expect(target.room).to eq("#baz")
             expect(message).to include("[GitHub] Got")
+            expect(message).to include("new commit")
           end
           subject.receive(request, response)
         end

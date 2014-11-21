@@ -2,6 +2,9 @@ require "spec_helper"
 require_relative "payload"
 
 describe Lita::Handlers::GithubCommits, lita_handler: true do
+
+  include Payload
+
   it { routes_http(:post, "/github-commits").to(:receive) }
 
   describe "#receive" do
@@ -16,27 +19,6 @@ describe Lita::Handlers::GithubCommits, lita_handler: true do
     let(:response) { Rack::Response.new }
 
     let(:params) { double("Hash") }
-
-    let(:valid_payload) do
-        Payload.valid_payload
-    end
-
-    let(:valid_payload_one_commit) do
-      Payload.valid_payload_one_commit
-    end
-
-    let(:created_payload) do
-      Payload.created_payload
-    end
-
-    let(:deleted_payload) do
-      Payload.deleted_payload
-    end
-
-    let(:ping_payload) do
-      Payload.ping_payload
-    end
-
 
     context "request with commits" do
       before do

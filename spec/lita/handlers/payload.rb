@@ -1,12 +1,12 @@
-class Payload
+module Payload
 
-  def self.valid_payload_one_commit
-    payload = MultiJson.load(self.valid_payload, symbolize_keys: true)
+  def valid_payload_one_commit
+    payload = MultiJson.load(valid_payload, symbolize_keys: true)
     payload[:commits] = [payload[:commits].first]
     payload.to_json
   end
 
-  def self.valid_payload
+  def valid_payload
       <<-JSON.chomp
 {
    "after":"1481a2de7b2a7d02428ad93446ab166be7793fbb",
@@ -155,7 +155,7 @@ class Payload
       JSON
   end
 
-  def self.created_payload
+  def created_payload
       <<-JSON.chomp
 {
    "after":"1481a2de7b2a7d02428ad93446ab166be7793fbb",
@@ -225,7 +225,7 @@ class Payload
       JSON
   end
 
-  def self.deleted_payload
+  def deleted_payload
       <<-JSON.chomp
 {
    "after":"1481a2de7b2a7d02428ad93446ab166be7793fbb",
@@ -295,7 +295,7 @@ class Payload
       JSON
   end
 
-  def self.ping_payload
+  def ping_payload
       <<-JSON.chomp
 {
    "zen":"Non-blocking is better than blocking",

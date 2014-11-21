@@ -21,6 +21,10 @@ describe Lita::Handlers::GithubCommits, lita_handler: true do
         Payload.valid_payload
     end
 
+    let(:valid_payload_one_commit) do
+      Payload.valid_payload_one_commit
+    end
+
     let(:created_payload) do
       Payload.created_payload
     end
@@ -45,6 +49,23 @@ describe Lita::Handlers::GithubCommits, lita_handler: true do
           expect(target.room).to eq("#baz")
           expect(message).to eq(
             "[GitHub] Got 3 new commits from Garen Torikian on octokitty/testing")
+        end
+        subject.receive(request, response)
+      end
+    end
+
+    context "request with one commit" do
+      before do
+        Lita.config.handlers.github_commits.repos["octokitty/testing"] = "#baz"
+        allow(params).to receive(:[]).with("payload").and_return(
+          valid_payload_one_commit)
+      end
+
+      it "sends a singular commit notification message to the applicable rooms" do
+        expect(robot).to receive(:send_message) do |target, message|
+          expect(target.room).to eq("#baz")
+          expect(message).to eq(
+            "[GitHub] Got 1 new commit from Garen Torikian on octokitty/testing")
         end
         subject.receive(request, response)
       end

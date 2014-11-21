@@ -1,5 +1,11 @@
 class Payload
 
+  def self.valid_payload_one_commit
+    payload = MultiJson.load(self.valid_payload, symbolize_keys: true)
+    payload[:commits] = [payload[:commits].first]
+    payload.to_json
+  end
+
   def self.valid_payload
       <<-JSON.chomp
 {
@@ -8,7 +14,7 @@ class Payload
    "commits":[
       {
          "added":[
- 
+
          ],
          "author":{
             "email":"lolwut@noway.biz",

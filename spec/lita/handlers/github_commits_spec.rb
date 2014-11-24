@@ -30,7 +30,7 @@ describe Lita::Handlers::GithubCommits, lita_handler: true do
         expect(robot).to receive(:send_message) do |target, message|
           expect(target.room).to eq("#baz")
           expect(message).to eq(
-            "[GitHub] Got 3 new commits from Garen Torikian on octokitty/testing")
+            "[GitHub] Got 3 new commits from Garen Torikian on octokitty/testing on the master branch")
         end
         subject.receive(request, response)
       end
@@ -47,7 +47,7 @@ describe Lita::Handlers::GithubCommits, lita_handler: true do
         expect(robot).to receive(:send_message) do |target, message|
           expect(target.room).to eq("#baz")
           expect(message).to eq(
-            "[GitHub] Got 1 new commit from Garen Torikian on octokitty/testing")
+            "[GitHub] Got 1 new commit from Garen Torikian on octokitty/testing on the master branch")
         end
         subject.receive(request, response)
       end

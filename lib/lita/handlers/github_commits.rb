@@ -45,9 +45,10 @@ module Lita
 
       def format_message(payload)
         commits = payload['commits']
+        branch = branch_from_ref(payload['ref'])
         if commits.size > 0
           commit_pluralization = commits.size > 1 ? 'commits' : 'commit'
-          "[GitHub] Got #{commits.size} new #{commit_pluralization} from #{commits.first['author']['name']} on #{payload['repository']['owner']['name']}/#{payload['repository']['name']}"
+          "[GitHub] Got #{commits.size} new #{commit_pluralization} from #{commits.first['author']['name']} on #{payload['repository']['owner']['name']}/#{payload['repository']['name']} on the #{branch} branch"
         elsif payload['created']
           "[GitHub] #{payload['pusher']['name']} created: #{payload['ref']}: #{payload['base_ref']}"
         elsif payload['deleted']
@@ -56,6 +57,10 @@ module Lita
       rescue
         Lita.logger.warn "Error formatting message for #{repo} repo. Payload: #{payload}"
         return
+      end
+
+      def branch_from_ref(ref)
+        ref.split('/').last
       end
 
       def rooms_for_repo(repo)

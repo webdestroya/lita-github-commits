@@ -47,20 +47,30 @@ module Lita
         commits = payload['commits']
         branch = branch_from_ref(payload['ref'])
         if commits.size > 0
+          author = committer_and_author(commits.first)
           commit_pluralization = commits.size > 1 ? 'commits' : 'commit'
-          "[GitHub] Got #{commits.size} new #{commit_pluralization} from #{commits.first['author']['name']} on #{payload['repository']['owner']['name']}/#{payload['repository']['name']} on the #{branch} branch"
+          "[GitHub] Got #{commits.size} new #{commit_pluralization} #{author} on #{payload['repository']['owner']['name']}/#{payload['repository']['name']} on the #{branch} branch"
         elsif payload['created']
           "[GitHub] #{payload['pusher']['name']} created: #{payload['ref']}: #{payload['base_ref']}"
         elsif payload['deleted']
           "[GitHub] #{payload['pusher']['name']} deleted: #{payload['ref']}"
         end
       rescue
-        Lita.logger.warn "Error formatting message for #{repo} repo. Payload: #{payload}"
+        Lita.logger.warn "Error formatting message for payload: #{payload}"
         return
       end
 
       def branch_from_ref(ref)
         ref.split('/').last
+      end
+
+      def committer_and_author(commit)
+        if commit['author']['username'] != commit['committer']['username']
+          "authored by #{commit['author']['name']} and committed by " +
+            "#{commit['committer']['name']}"
+        else
+          "from #{commit['author']['name']}"
+        end
       end
 
       def rooms_for_repo(repo)

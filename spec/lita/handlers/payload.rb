@@ -6,6 +6,19 @@ module Payload
     payload.to_json
   end
 
+  def valid_payload_diff_committer
+    payload = MultiJson.load(valid_payload, symbolize_keys: true)
+    payload[:commits] = payload[:commits].map do |commit|
+      commit[:committer] = {
+        email: "committer@noway.biz",
+        name: "Repository Owner",
+        username: "owner"
+      }
+      commit
+    end
+    payload.to_json
+  end
+
   def valid_payload
       <<-JSON.chomp
 {

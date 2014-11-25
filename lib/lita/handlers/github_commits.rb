@@ -56,7 +56,7 @@ module Lita
           "[GitHub] #{payload['pusher']['name']} deleted: #{payload['ref']}"
         end
       rescue
-        Lita.logger.warn "Error formatting message for #{repo} repo. Payload: #{payload}"
+        Lita.logger.warn "Error formatting message for payload: #{payload}"
         return
       end
 

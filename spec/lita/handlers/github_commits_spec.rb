@@ -53,6 +53,21 @@ describe Lita::Handlers::GithubCommits, lita_handler: true do
       end
     end
 
+    context "request with commits" do
+      before do
+        Lita.config.handlers.github_commits.repos["octokitty/testing"] = "#baz"
+        allow(params).to receive(:[]).with("payload").and_return(valid_payload_diff_committer)
+      end
+
+      it "sends a notification message to the applicable rooms" do
+        expect(robot).to receive(:send_message) do |target, message|
+          expect(message).to eq(
+            "[GitHub] Got 3 new commits authored by Garen Torikian and " +
+            "committed by Repository Owner on octokitty/testing on the master branch")
+        end
+        subject.receive(request, response)
+      end
+    end
 
 
     context "create payload" do

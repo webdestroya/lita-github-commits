@@ -33,6 +33,15 @@ end
 
 **Note**: For HipChat, the room should be the JID of the HipChat room (eg. `123_development@conf.hipchat.com`)
 
+The output from Lita would look something like:
+
+```
+[GitHub] Got 3 new commits from Garen Torikian on octokitty/testing on the master branch
+  * Test
+  * This is me testing the windows client.
+  * Rename madame-bovary.txt to words/madame-bovary.txt
+```
+
 ## Usage
 
 You will need to add a GitHub Webhook url that points to: `http://address.of.lita/github-commits`

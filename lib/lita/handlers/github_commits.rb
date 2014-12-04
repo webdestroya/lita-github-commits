@@ -48,8 +48,9 @@ module Lita
         branch = branch_from_ref(payload['ref'])
         if commits.size > 0
           author = committer_and_author(commits.first)
+          messages = commit_messages(commits)
           commit_pluralization = commits.size > 1 ? 'commits' : 'commit'
-          "[GitHub] Got #{commits.size} new #{commit_pluralization} #{author} on #{payload['repository']['owner']['name']}/#{payload['repository']['name']} on the #{branch} branch"
+          "[GitHub] Got #{commits.size} new #{commit_pluralization} #{author} on #{payload['repository']['owner']['name']}/#{payload['repository']['name']} on the #{branch} branch\n" + messages.join("\n")
         elsif payload['created']
           "[GitHub] #{payload['pusher']['name']} created: #{payload['ref']}: #{payload['base_ref']}"
         elsif payload['deleted']
@@ -70,6 +71,12 @@ module Lita
             "#{commit['committer']['name']}"
         else
           "from #{commit['author']['name']}"
+        end
+      end
+
+      def commit_messages(commits)
+        commits.collect do |commit|
+          "  * #{commit['message']}"
         end
       end
 

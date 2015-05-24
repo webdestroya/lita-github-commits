@@ -29,8 +29,13 @@ describe Lita::Handlers::GithubCommits, lita_handler: true do
       it "sends a notification message to the applicable rooms" do
         expect(robot).to receive(:send_message) do |target, message|
           expect(target.room).to eq("#baz")
-          expect(message).to eq(
-            "[GitHub] Got 3 new commits from Garen Torikian on octokitty/testing on the master branch")
+          expect(message).to eq(<<-RESPONSE.chomp
+[GitHub] Got 3 new commits from Garen Torikian on octokitty/testing on the master branch
+  * Test
+  * This is me testing the windows client.
+  * Rename madame-bovary.txt to words/madame-bovary.txt
+                                RESPONSE
+                               )
         end
         subject.receive(request, response)
       end
@@ -46,8 +51,11 @@ describe Lita::Handlers::GithubCommits, lita_handler: true do
       it "sends a singular commit notification message to the applicable rooms" do
         expect(robot).to receive(:send_message) do |target, message|
           expect(target.room).to eq("#baz")
-          expect(message).to eq(
-            "[GitHub] Got 1 new commit from Garen Torikian on octokitty/testing on the master branch")
+          expect(message).to eq(<<-RESPONSE.chomp
+[GitHub] Got 1 new commit from Garen Torikian on octokitty/testing on the master branch
+  * Test
+                                RESPONSE
+                               )
         end
         subject.receive(request, response)
       end
@@ -61,9 +69,13 @@ describe Lita::Handlers::GithubCommits, lita_handler: true do
 
       it "sends a notification message to the applicable rooms" do
         expect(robot).to receive(:send_message) do |target, message|
-          expect(message).to eq(
-            "[GitHub] Got 3 new commits authored by Garen Torikian and " +
-            "committed by Repository Owner on octokitty/testing on the master branch")
+          expect(message).to eq(<<-RESPONSE.chomp
+[GitHub] Got 3 new commits authored by Garen Torikian and committed by Repository Owner on octokitty/testing on the master branch
+  * Test
+  * This is me testing the windows client.
+  * Rename madame-bovary.txt to words/madame-bovary.txt
+                                RESPONSE
+                               )
         end
         subject.receive(request, response)
       end

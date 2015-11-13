@@ -1,19 +1,42 @@
 require "lita"
+require 'time'
 
 module Lita
   module Handlers
     class GithubCommits < Handler
 
+      SHA_ABBREV_LENGTH = 7
+
+      #todo: change this to lita4 config http://docs.lita.io/releases/4/
+      #config :repos, type: Hash, default: {}
+      #config :remember_commits_for, type: Integer, default: 1
       def self.default_config(config)
         config.repos = {}
+        config.remember_commits_for = 1
       end
 
       http.post "/github-commits", :receive
+
+      route(/github commit (\w*)/i, :check_for_commit, command: false,
+            help: { "github commit <SHA1>" => "Displays the details of commit SHA1 if known."}
+      )
+
+      def check_for_commit(response)
+        sha = abbrev_sha(response.match_data[1])
+        if sha && (commit=redis.get(sha))
+          response.reply(format_single_commit(parse_payload(commit)))
+        elsif response.message.command?
+          response.reply("[GitHub] Sorry Boss, I can't find that commit")
+        #else
+        #  response.reply("I got nothing to say.")
+        end
+      end
 
       def receive(request, response)
         event_type = request.env['HTTP_X_GITHUB_EVENT'] || 'unknown'
         if event_type == "push"
           payload = parse_payload(request.params['payload']) or return
+          store_commits(payload)
           repo = get_repo(payload)
           notify_rooms(repo, payload)
         elsif event_type == "ping"
@@ -43,6 +66,30 @@ module Lita
         end
       end
 
+      def store_commits(payload)
+        ttl = remember_commits_for*86400
+        return if ttl == 0
+        commits = payload['commits']
+        branch = branch_from_ref(payload['ref'])
+        commits.each do |commit|
+          key = commit['id'][0,7]
+          commit[:branch] = branch
+          #puts("storing #{commit.to_json} to key #{key} for #{ttl}")
+          redis.setex(key,ttl,commit.to_json)
+        end
+      end
+
+      def format_single_commit(commit)
+        puts commit.inspect
+        ret = "[GitHub] Commit #{abbrev_sha(commit['id'])} committed by "
+        ret += commit['committer'] ? commit['committer']['name'] : "<unknown>"
+        ret += "on branch #{commit['branch']} at "
+        ret += Time.parse(commit['timestamp']).getlocal.to_s
+        ret += " with message\n#{commit['message']}\nand changes to files\n" 
+        ret += commit['modified'].join("\n")
+        ret
+      end
+
       def format_message(payload)
         commits = payload['commits']
         branch = branch_from_ref(payload['ref'])
@@ -59,6 +106,10 @@ module Lita
       rescue
         Lita.logger.warn "Error formatting message for payload: #{payload}"
         return
+      end
+
+      def abbrev_sha(sha)
+        sha.nil? ? nil : sha[0,SHA_ABBREV_LENGTH]
       end
 
       def branch_from_ref(ref)
@@ -83,7 +134,7 @@ module Lita
       def rooms_for_repo(repo)
         rooms = Lita.config.handlers.github_commits.repos[repo]
 
-        if rooms
+        if rooms && rooms.size > 0 
           Array(rooms)
         else
           Lita.logger.warn "Notification from GitHub Commits for unconfigured project: #{repo}"
@@ -91,11 +142,13 @@ module Lita
         end
       end
 
-
       def get_repo(payload)
         "#{payload['repository']['owner']['name']}/#{payload['repository']['name']}"
       end
-
+      
+      def remember_commits_for
+        Lita.config.handlers.github_commits.remember_commits_for
+      end
     end
 
     Lita.register_handler(GithubCommits)

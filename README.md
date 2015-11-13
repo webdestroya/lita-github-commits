@@ -4,7 +4,7 @@
 [![Code Climate](https://codeclimate.com/github/webdestroya/lita-github-commits.png)](https://codeclimate.com/github/webdestroya/lita-github-commits)
 [![Coverage Status](https://coveralls.io/repos/webdestroya/lita-github-commits/badge.png)](https://coveralls.io/r/webdestroya/lita-github-commits)
 
-**lita-github-commits** is a handler for [Lita](https://github.com/jimmycuadra/lita) that listens for github commits and posts them in the channel.
+**lita-github-commits** is a handler for [Lita](https://github.com/jimmycuadra/lita) that listens for github commits and posts them in the channel.  You can also ask lita for information about a commit it remembers.
 
 ## Installation
 
@@ -19,6 +19,8 @@ gem "lita-github-commits"
 ### Required attributes
 
 * `repos` (Hash) - A map of repositories to allow notifications for and the chat rooms to post them in. The keys should be strings in the format "github_username/repository_name" and the values should be either a string room name or an array of string room names. Default: `{}`.
+
+* remember_commits_for (Integer) - Number of days lita will remember information about commits it as heard about.  Default: 0 (no memory)
 
 ### Example
 
@@ -45,6 +47,11 @@ The output from Lita would look something like:
 ## Usage
 
 You will need to add a GitHub Webhook url that points to: `http://address.of.lita/github-commits`
+
+```
+github commit <SHA1>       - Search for a commit based on the first 7 chars and return the details
+
+```
 
 ## License
 

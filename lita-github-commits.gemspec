@@ -1,8 +1,8 @@
 Gem::Specification.new do |spec|
   spec.name          = "lita-github-commits"
-  spec.version       = "0.2.0"
-  spec.authors       = ["Mitch Dempsey"]
-  spec.email         = ["mrdempsey@gmail.com"]
+  spec.version       = "0.2.1"
+  spec.authors       = ["Mitch Dempsey", "Steve Jernigan"]
+  spec.email         = ["mrdempsey@gmail.com","steve.jernigan@gmail.com"]
   spec.description   = %q{A Lita handler that will display GitHub commit messages in the channel}
   spec.summary       = %q{A Lita handler that will display GitHub commit messages in the channel}
   spec.homepage      = "https://github.com/webdestroya/lita-github-commits"

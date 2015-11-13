@@ -6,6 +6,11 @@ module Payload
     payload.to_json
   end
 
+  def first_commit
+    payload = MultiJson.load(valid_payload, symbolize_keys: true)
+    payload[:commits].first
+  end
+
   def valid_payload_diff_committer
     payload = MultiJson.load(valid_payload, symbolize_keys: true)
     payload[:commits] = payload[:commits].map do |commit|

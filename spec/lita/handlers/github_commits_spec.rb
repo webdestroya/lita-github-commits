@@ -37,6 +37,7 @@ describe Lita::Handlers::GithubCommits, lita_handler: true do
                                 RESPONSE
                                )
         end
+        expect(subject.redis).to receive(:setex).exactly(3).times
         subject.receive(request, response)
       end
     end
@@ -44,6 +45,7 @@ describe Lita::Handlers::GithubCommits, lita_handler: true do
     context "request with one commit" do
       before do
         Lita.config.handlers.github_commits.repos["octokitty/testing"] = "#baz"
+        Lita.config.handlers.github_commits.remember_commits_for = 1
         allow(params).to receive(:[]).with("payload").and_return(
           valid_payload_one_commit)
       end
@@ -57,6 +59,36 @@ describe Lita::Handlers::GithubCommits, lita_handler: true do
                                 RESPONSE
                                )
         end
+        expect(subject.redis).to receive(:setex).once
+        subject.receive(request, response)
+      end
+
+      it "stores the message to redis with ttl" do
+        expect(subject.redis).to receive(:setex).once.with("c441029",86400,anything)
+        subject.receive(request, response)
+      end
+
+      it { is_expected.to route_command("github commit 12345").to(:check_for_commit) }
+
+
+      it "stores the message to redis and can retrieve it from redis" do
+        subject.receive(request, response)
+        expect(subject.redis.ttl("c441029")).to be 
+        expect(subject.redis.get("c441029")).to eq first_commit.merge({:branch=>"master"}).to_json
+        expect(subject.redis.get("c44102")).to be nil
+      end
+    end
+
+    context "request without memory" do
+      before do
+        Lita.config.handlers.github_commits.repos["octokitty/testing"] = "#baz"
+        Lita.config.handlers.github_commits.remember_commits_for = 0
+        allow(params).to receive(:[]).with("payload").and_return(
+          valid_payload_one_commit)
+      end
+
+      it "stores does not store the message to redis" do
+        expect(subject.redis).to receive(:setex).never
         subject.receive(request, response)
       end
     end
@@ -78,6 +110,34 @@ describe Lita::Handlers::GithubCommits, lita_handler: true do
                                )
         end
         subject.receive(request, response)
+      end
+    end
+
+    context "request with commits on a repo with no room" do
+      before do
+        Lita.config.handlers.github_commits.repos["octokitty/testing"] = ""
+        allow(params).to receive(:[]).with("payload").and_return(valid_payload_diff_committer)
+      end
+
+      it "it should not send messages on webhook requests" do
+        expect(robot).not_to receive(:send_message) 
+        subject.receive(request, response)
+      end
+
+      it "it should respond to a previously unseen commit if its a command" do
+        send_command("github commit 36c5f2243ed24de5")
+        expect(replies).to include("[GitHub] Sorry Boss, I can't find that commit")
+      end
+
+      it "it should not respond to a previously unseen commit if its not a command" do
+        send_message("github commit 36c5f2243ed24de5")
+        expect(replies).to eq []
+      end
+
+      it "it should respond to a previously seen commit" do
+        subject.receive(request, response)
+        send_message("github commit 36c5f2243ed24de5")
+        expect(replies).to include("[GitHub] Commit 36c5f22 committed by Repository Owneron branch master at 2013-02-22 17:07:13 -0500 with message\nThis is me testing the windows client.\nand changes to files\nREADME.md")
       end
     end
 

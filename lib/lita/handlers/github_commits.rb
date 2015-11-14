@@ -6,7 +6,6 @@ module Lita
     class GithubCommits < Handler
       template_root File.expand_path("../../../../templates", __FILE__)
 
-      SHA_ABBREV_LENGTH = 7
 
       #todo: change this to lita4 config http://docs.lita.io/releases/4/
       #config :repos, type: Hash, default: {}
@@ -18,18 +17,25 @@ module Lita
 
       http.post "/github-commits", :receive
 
-      route(/github commit (\w*)/i, :check_for_commit, command: false,
-            help: { "github commit <SHA1>" => "Displays the details of commit SHA1 if known."}
+      SHA_ABBREV_LENGTH = 7
+      route(/commit\/([a-f0-9]{7,})\s?/i, :check_for_commit, command: false,
+            help: { "...commit/<SHA1>..." => "Displays the details of commit SHA1 if known (requires at least #{SHA_ABBREV_LENGTH} digits of the SHA)."}
       )
 
       def check_for_commit(response)
         sha = abbrev_sha(response.match_data[1])
-        if sha && (commit=redis.get(sha))
+        if sha.nil? || sha.empty?
+          #this shouldn't match regex
+          response.reply("[GitHub] I need at least #{SHA_ABBREV_LENGTH} characters of the commit SHA") if response.message.command?
+        elsif sha.size <= 6 && response.message.command?
+          #this shouldn't match regex
+          response.reply("[GitHub] Can you be more precise?")
+        elsif  (commit=redis.get(sha))
           response.reply(render_template("commit_details", commit: parse_payload(commit)))
         elsif response.message.command?
           response.reply("[GitHub] Sorry Boss, I can't find that commit")
         #else
-        #  response.reply("I got nothing to say.")
+        #  response.reply("I got nothing to say about #{sha}.")
         end
       end
 

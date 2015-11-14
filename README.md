@@ -49,9 +49,11 @@ The output from Lita would look something like:
 You will need to add a GitHub Webhook url that points to: `http://address.of.lita/github-commits`
 
 ```
-github commit <SHA1>       - Search for a commit based on the first 7 chars and return the details
+... commit/<SHA1>...       - Search for a commit based and return the details
 
 ```
+
+Note that it only looks through the commits that it has heard about and remembers.  This is so that the bot needs no more access than a webhook.
 
 ## License
 

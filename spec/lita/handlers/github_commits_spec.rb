@@ -68,7 +68,12 @@ describe Lita::Handlers::GithubCommits, lita_handler: true do
         subject.receive(request, response)
       end
 
-      it { is_expected.to route_command("github commit 12345").to(:check_for_commit) }
+      it { is_expected.to route_command("zzcommit/1234567").to(:check_for_commit) }
+      it { is_expected.to route_command("abf commit/1234567").to(:check_for_commit) }
+      it { is_expected.to route_command("__commit/abcdef1?").to(:check_for_commit) }
+      it { is_expected.to_not route_command("commit/").to(:check_for_commit) }
+      it { is_expected.to_not route_command("commit/123456").to(:check_for_commit) }
+      it { is_expected.to_not route_command("commit/ornottocommit").to(:check_for_commit) }
 
 
       it "stores the message to redis and can retrieve it from redis" do
@@ -125,18 +130,18 @@ describe Lita::Handlers::GithubCommits, lita_handler: true do
       end
 
       it "it should respond to a previously unseen commit if its a command" do
-        send_command("github commit 36c5f2243ed24de5")
+        send_command("stuff commit/36c5f2243ed24de5 stuff")
         expect(replies).to include("[GitHub] Sorry Boss, I can't find that commit")
       end
 
       it "it should not respond to a previously unseen commit if its not a command" do
-        send_message("github commit 36c5f2243ed24de5")
+        send_message("github commit/36c5f2243ed24de5")
         expect(replies).to eq []
       end
 
       it "it should respond to a previously seen commit" do
         subject.receive(request, response)
-        send_message("github commit 36c5f2243ed24de5")
+        send_message("do you know about commit/36c5f2243ed24de5?")
         expect(replies).to include("[GitHub] Commit 36c5f22 committed by Repository Owner on branch master at 2013-02-22 17:07:13 -0500 with message\n'This is me testing the windows client.'\nand changes to files\nREADME.md")
       end
     end

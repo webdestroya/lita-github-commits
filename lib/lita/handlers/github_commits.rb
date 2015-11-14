@@ -4,6 +4,7 @@ require 'time'
 module Lita
   module Handlers
     class GithubCommits < Handler
+      template_root File.expand_path("../../../../templates", __FILE__)
 
       SHA_ABBREV_LENGTH = 7
 
@@ -24,7 +25,8 @@ module Lita
       def check_for_commit(response)
         sha = abbrev_sha(response.match_data[1])
         if sha && (commit=redis.get(sha))
-          response.reply(format_single_commit(parse_payload(commit)))
+          response.reply(render_template("commit_details", commit: parse_payload(commit)))
+          #response.reply(format_single_commit(parse_payload(commit)))
         elsif response.message.command?
           response.reply("[GitHub] Sorry Boss, I can't find that commit")
         #else
@@ -80,7 +82,6 @@ module Lita
       end
 
       def format_single_commit(commit)
-        puts commit.inspect
         ret = "[GitHub] Commit #{abbrev_sha(commit['id'])} committed by "
         ret += commit['committer'] ? commit['committer']['name'] : "<unknown>"
         ret += "on branch #{commit['branch']} at "

@@ -26,7 +26,6 @@ module Lita
         sha = abbrev_sha(response.match_data[1])
         if sha && (commit=redis.get(sha))
           response.reply(render_template("commit_details", commit: parse_payload(commit)))
-          #response.reply(format_single_commit(parse_payload(commit)))
         elsif response.message.command?
           response.reply("[GitHub] Sorry Boss, I can't find that commit")
         #else
@@ -79,16 +78,6 @@ module Lita
           #puts("storing #{commit.to_json} to key #{key} for #{ttl}")
           redis.setex(key,ttl,commit.to_json)
         end
-      end
-
-      def format_single_commit(commit)
-        ret = "[GitHub] Commit #{abbrev_sha(commit['id'])} committed by "
-        ret += commit['committer'] ? commit['committer']['name'] : "<unknown>"
-        ret += "on branch #{commit['branch']} at "
-        ret += Time.parse(commit['timestamp']).getlocal.to_s
-        ret += " with message\n#{commit['message']}\nand changes to files\n" 
-        ret += commit['modified'].join("\n")
-        ret
       end
 
       def format_message(payload)

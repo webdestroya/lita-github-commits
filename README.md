@@ -20,9 +20,9 @@ gem "lita-github-commits"
 
 * `repos` (Hash) - A map of repositories to allow notifications for and the chat rooms to post them in. The keys should be strings in the format "github_username/repository_name" and the values should be either a string room name or an array of string room names. Default: `{}`.
 
-* remember_commits_for (Integer) - Number of days lita will remember information about commits it as heard about.  Default: 0 (no memory)
+* remember_commits_for (Integer) - Number of days lita will remember information about commits it as heard about.  Setting it to 0 effectively disables the "commit/<SHA1>" command handling.  Default: 0 (no memory)
 
-### Example
+### Example Config
 
 ``` ruby
 Lita.configure do |config|
@@ -43,6 +43,8 @@ The output from Lita would look something like:
   * This is me testing the windows client.
   * Rename madame-bovary.txt to words/madame-bovary.txt
 ```
+
+If you do not want commit notifications for a particular repository, configure it to have 
 
 ## Usage
 

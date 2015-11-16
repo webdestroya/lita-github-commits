@@ -48,14 +48,15 @@ The output from Lita would look something like:
 
 ## Usage
 
-You will need to add a GitHub Webhook url that points to: `http://address.of.lita/github-commits`
+You will need to add a [GitHub Webhook](https://developer.github.com/webhooks/) url that points to: `http://address.of.lita/github-commits`
 
+In any room that Lita is listening, it will look for statements of the following form and provide the details of the commit if it remembers them.  If it doesn't remember the commit (or has heard about it), it will remain silent unless its a direct command.
 ```
 ... commit/<SHA1>...       - Search for a commit based and return the details
 
 ```
 
-Note that it only looks through the commits that it has heard about and remembers.  This is so that the bot needs no more access than a webhook.
+Note that it only searches the commits that it has heard about and remembers so that the bot needs no more access to the repo than a webhook.
 
 ## License
 

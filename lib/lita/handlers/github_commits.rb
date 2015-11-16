@@ -17,7 +17,7 @@ module Lita
 
       http.post "/github-commits", :receive
 
-      SHA_ABBREV_LENGTH = 7
+      SHA_ABBREV_LENGTH = 7  #note the regex below needs to match this constant
       route(/commit\/([a-f0-9]{7,})\s?/i, :check_for_commit, command: false,
             help: { "...commit/<SHA1>..." => "Displays the details of commit SHA1 if known (requires at least #{SHA_ABBREV_LENGTH} digits of the SHA)."}
       )
@@ -79,7 +79,7 @@ module Lita
         commits = payload['commits']
         branch = branch_from_ref(payload['ref'])
         commits.each do |commit|
-          key = commit['id'][0,7]
+          key = commit['id'][0,SHA_ABBREV_LENGTH]
           commit[:branch] = branch
           #puts("storing #{commit.to_json} to key #{key} for #{ttl}")
           redis.setex(key,ttl,commit.to_json)

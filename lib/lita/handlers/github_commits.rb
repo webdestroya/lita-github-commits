@@ -15,12 +15,18 @@ module Lita
         config.remember_commits_for = 1
       end
 
-      http.post "/github-commits", :receive
+      def self.install_routes()
+        http.post "/github-commits", :receive
+      end
+      install_routes()
 
       SHA_ABBREV_LENGTH = 7  #note the regex below needs to match this constant
-      route(/commit\/([a-f0-9]{7,})\s?/i, :check_for_commit, command: false,
-            help: { "...commit/<SHA1>..." => "Displays the details of commit SHA1 if known (requires at least #{SHA_ABBREV_LENGTH} digits of the SHA)."}
-      )
+      def self.install_commands
+        route(/commit\/([a-f0-9]{7,})\s?/i, :check_for_commit, command: false,
+              help: { "...commit/<SHA1>..." => "Displays the details of commit SHA1 if known (requires at least #{SHA_ABBREV_LENGTH} digits of the SHA)."}
+        )
+      end
+      install_commands
 
       def check_for_commit(response)
         sha = abbrev_sha(response.match_data[1])

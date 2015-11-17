@@ -20,6 +20,7 @@ module Lita
       end
       install_routes()
 
+      REDIS_KEY_PREFIX = "GH_COMMTIS:"
       SHA_ABBREV_LENGTH = 7  #note the regex below needs to match this constant
       def self.install_commands
         route(/commit\/([a-f0-9]{7,})\s?/i, :check_for_commit, command: false,
@@ -36,7 +37,7 @@ module Lita
         elsif sha.size <= 6 && response.message.command?
           #this shouldn't match regex
           response.reply("[GitHub] Can you be more precise?")
-        elsif  (commit=redis.get(sha))
+        elsif  (commit=redis.get(REDIS_KEY_PREFIX + sha))
           response.reply(render_template("commit_details", commit: parse_payload(commit)))
         elsif response.message.command?
           response.reply("[GitHub] Sorry Boss, I can't find that commit")
@@ -47,6 +48,7 @@ module Lita
 
       def receive(request, response)
         event_type = request.env['HTTP_X_GITHUB_EVENT'] || 'unknown'
+        Lita.logger.debug("Received #{event_type} event from github with content #{request.params['payload']}")
         if event_type == "push"
           payload = parse_payload(request.params['payload']) or return
           store_commits(payload)
@@ -66,6 +68,7 @@ module Lita
         MultiJson.load(payload)
       rescue MultiJson::LoadError => e
         Lita.logger.error("Could not parse JSON payload from Github: #{e.message}")
+        Lita.logger.debug("Payload was #{payload}")
         return
       end
 
@@ -85,7 +88,7 @@ module Lita
         commits = payload['commits']
         branch = branch_from_ref(payload['ref'])
         commits.each do |commit|
-          key = commit['id'][0,SHA_ABBREV_LENGTH]
+          key = REDIS_KEY_PREFIX + commit['id'][0,SHA_ABBREV_LENGTH]
           commit[:branch] = branch
           #puts("storing #{commit.to_json} to key #{key} for #{ttl}")
           redis.setex(key,ttl,commit.to_json)

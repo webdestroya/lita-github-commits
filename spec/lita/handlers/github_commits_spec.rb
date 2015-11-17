@@ -64,7 +64,7 @@ describe Lita::Handlers::GithubCommits, lita_handler: true do
       end
 
       it "stores the message to redis with ttl" do
-        expect(subject.redis).to receive(:setex).once.with("c441029",86400,anything)
+        expect(subject.redis).to receive(:setex).once.with(Lita::Handlers::GithubCommits::REDIS_KEY_PREFIX + "c441029",86400,anything)
         subject.receive(request, response)
       end
 
@@ -78,9 +78,9 @@ describe Lita::Handlers::GithubCommits, lita_handler: true do
 
       it "stores the message to redis and can retrieve it from redis" do
         subject.receive(request, response)
-        expect(subject.redis.ttl("c441029")).to be 
-        expect(subject.redis.get("c441029")).to eq first_commit.merge({:branch=>"master"}).to_json
-        expect(subject.redis.get("c44102")).to be nil
+        expect(subject.redis.ttl(Lita::Handlers::GithubCommits::REDIS_KEY_PREFIX + "c441029")).to be 
+        expect(subject.redis.get(Lita::Handlers::GithubCommits::REDIS_KEY_PREFIX + "c441029")).to eq first_commit.merge({:branch=>"master"}).to_json
+        expect(subject.redis.get(Lita::Handlers::GithubCommits::REDIS_KEY_PREFIX + "c44102")).to be nil
       end
     end
 

@@ -1,6 +1,6 @@
 Gem::Specification.new do |spec|
   spec.name          = "lita-github-commits"
-  spec.version       = "0.2.2"
+  spec.version       = "0.2.4"
   spec.authors       = ["Mitch Dempsey", "Steve Jernigan"]
   spec.email         = ["mrdempsey@gmail.com","steve.jernigan@gmail.com"]
   spec.description   = %q{A Lita handler that will display GitHub commit messages in the channel}

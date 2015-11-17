@@ -13,6 +13,7 @@ module Lita
       def self.default_config(config)
         config.repos = {}
         config.remember_commits_for = 1
+        config.github_webhook_secret = nil
       end
 
       def self.install_routes()
@@ -48,9 +49,12 @@ module Lita
 
       def receive(request, response)
         event_type = request.env['HTTP_X_GITHUB_EVENT'] || 'unknown'
-        Lita.logger.debug("Received #{event_type} event from github with content #{request.params['payload']}")
-        if event_type == "push"
-          payload = parse_payload(request.params['payload']) or return
+        #Lita.logger.debug("Received GitHub #{event_type} event from #{request.ip} with content #{request.body.inspect}") rescue ""
+        Lita.logger.debug("Received GitHub #{event_type} event with content #{request.body.inspect}") rescue ""
+        if !valid_signature(request)
+          response.status = 404
+        elsif event_type == "push"
+          payload = parse_payload(request.body) or return
           store_commits(payload)
           repo = get_repo(payload)
           notify_rooms(repo, payload)
@@ -63,6 +67,15 @@ module Lita
       end
 
       private
+
+      def valid_signature(request)
+        #not actually validating yet, just checking for presence of signature
+        #should look something like
+        #payload_body = request.body.read
+        #signature = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), config.github_webhook_secret, payload_body)
+        #Rack::Utils.secure_compare(signature, request.env['HTTP_X_HUB_SIGNATURE'])
+        config.github_webhook_secret.nil? || (request.env['HTTP_X_HUB_SIGNATURE'] && !request.env['HTTP_X_HUB_SIGNATURE'].empty?)
+      end
 
       def parse_payload(payload)
         MultiJson.load(payload)

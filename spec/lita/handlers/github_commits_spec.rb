@@ -23,7 +23,7 @@ describe Lita::Handlers::GithubCommits, lita_handler: true do
     context "request with commits" do
       before do
         Lita.config.handlers.github_commits.repos["octokitty/testing"] = "#baz"
-        allow(params).to receive(:[]).with("payload").and_return(valid_payload)
+        allow(request).to receive(:body).and_return(valid_payload)
       end
 
       it "sends a notification message to the applicable rooms" do
@@ -46,8 +46,7 @@ describe Lita::Handlers::GithubCommits, lita_handler: true do
       before do
         Lita.config.handlers.github_commits.repos["octokitty/testing"] = "#baz"
         Lita.config.handlers.github_commits.remember_commits_for = 1
-        allow(params).to receive(:[]).with("payload").and_return(
-          valid_payload_one_commit)
+        allow(request).to receive(:body).and_return(valid_payload_one_commit)
       end
 
       it "sends a singular commit notification message to the applicable rooms" do
@@ -88,8 +87,21 @@ describe Lita::Handlers::GithubCommits, lita_handler: true do
       before do
         Lita.config.handlers.github_commits.repos["octokitty/testing"] = "#baz"
         Lita.config.handlers.github_commits.remember_commits_for = 0
-        allow(params).to receive(:[]).with("payload").and_return(
-          valid_payload_one_commit)
+        allow(request).to receive(:body).and_return(valid_payload_one_commit)
+      end
+
+      it "stores does not store the message to redis" do
+        expect(subject.redis).to receive(:setex).never
+        subject.receive(request, response)
+      end
+    end
+
+    context "request with signature" do
+      before do
+        Lita.config.handlers.github_commits.repos["octokitty/testing"] = "#baz"
+        Lita.config.handlers.github_commits.remember_commits_for = 1
+        Lita.config.handlers.github_commits.github_webhook_secret = "something"
+        allow(request).to receive(:body).and_return(valid_payload_one_commit)
       end
 
       it "stores does not store the message to redis" do
@@ -101,7 +113,7 @@ describe Lita::Handlers::GithubCommits, lita_handler: true do
     context "request with commits" do
       before do
         Lita.config.handlers.github_commits.repos["octokitty/testing"] = "#baz"
-        allow(params).to receive(:[]).with("payload").and_return(valid_payload_diff_committer)
+        allow(request).to receive(:body).and_return(valid_payload_diff_committer)
       end
 
       it "sends a notification message to the applicable rooms" do
@@ -121,7 +133,7 @@ describe Lita::Handlers::GithubCommits, lita_handler: true do
     context "request with commits on a repo with no room" do
       before do
         Lita.config.handlers.github_commits.repos["octokitty/testing"] = ""
-        allow(params).to receive(:[]).with("payload").and_return(valid_payload_diff_committer)
+        allow(request).to receive(:body).and_return(valid_payload_diff_committer)
       end
 
       it "it should not send messages on webhook requests" do
@@ -151,6 +163,7 @@ describe Lita::Handlers::GithubCommits, lita_handler: true do
       before do
         Lita.config.handlers.github_commits.repos["octokitty/testing"] = "#baz"
         allow(params).to receive(:[]).with("payload").and_return(created_payload)
+        allow(request).to receive(:body).and_return(created_payload)
       end
 
       it "sends a notification message to the applicable rooms" do
@@ -166,7 +179,7 @@ describe Lita::Handlers::GithubCommits, lita_handler: true do
     context "delete payload" do
       before do
         Lita.config.handlers.github_commits.repos["octokitty/testing"] = "#baz"
-        allow(params).to receive(:[]).with("payload").and_return(deleted_payload)
+        allow(request).to receive(:body).and_return(deleted_payload)
       end
 
       it "sends a notification message to the applicable rooms" do
@@ -182,7 +195,7 @@ describe Lita::Handlers::GithubCommits, lita_handler: true do
     context "bad payload" do
       before do
         Lita.config.handlers.github_commits.repos["octokitty/testing"] = "#baz"
-        allow(params).to receive(:[]).with("payload").and_return("yaryary")
+        allow(request).to receive(:body).and_return("yaryary")
       end
 
       it "sends a notification message to the applicable rooms" do
@@ -197,7 +210,7 @@ describe Lita::Handlers::GithubCommits, lita_handler: true do
     context "ping event" do
       before do
         Lita.config.handlers.github_commits.repos["octokitty/testing"] = "#baz"
-        allow(params).to receive(:[]).with("payload").and_return(ping_payload)
+        allow(request).to receive(:body).and_return(ping_payload)
         allow(request).to receive(:env).and_return({"HTTP_X_GITHUB_EVENT" => "ping"})
       end
 
@@ -211,7 +224,7 @@ describe Lita::Handlers::GithubCommits, lita_handler: true do
     context "unknown event" do
       before do
         Lita.config.handlers.github_commits.repos["octokitty/testing"] = "#baz"
-        allow(params).to receive(:[]).with("payload").and_return(ping_payload)
+        allow(request).to receive(:body).and_return(ping_payload)
         allow(request).to receive(:env).and_return({"HTTP_X_GITHUB_EVENT" => "fakefake"})
       end
 
@@ -225,7 +238,7 @@ describe Lita::Handlers::GithubCommits, lita_handler: true do
 
     context "improper config" do
       before do
-        allow(params).to receive(:[]).with("payload").and_return(deleted_payload)
+        allow(request).to receive(:body).and_return(deleted_payload)
       end
 
       it "sends a notification message to the applicable rooms" do

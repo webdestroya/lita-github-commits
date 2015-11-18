@@ -51,8 +51,7 @@ module Lita
 
       def receive(request, response)
         event_type = request.env['HTTP_X_GITHUB_EVENT'] || 'unknown'
-        #Lita.logger.debug("Received GitHub #{event_type} event from #{request.ip} with content #{request.body.inspect}") rescue ""
-        Lita.logger.debug("Received GitHub #{event_type} event with content #{request.body.inspect}") rescue ""
+        Lita.logger.debug("Received GitHub #{event_type} event") rescue ""
         if !valid_signature(request)
           response.status = 404
         elsif event_type == "push"
@@ -76,14 +75,18 @@ module Lita
         #payload_body = request.body.read
         #signature = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), config.github_webhook_secret, payload_body)
         #Rack::Utils.secure_compare(signature, request.env['HTTP_X_HUB_SIGNATURE'])
-        config.github_webhook_secret.nil? || config.github_webhook_secret.empty? || (request.env['HTTP_X_HUB_SIGNATURE'] && !request.env['HTTP_X_HUB_SIGNATURE'].empty?)
+        if config.github_webhook_secret.nil? || config.github_webhook_secret.empty? || (request.env['HTTP_X_HUB_SIGNATURE'] && !request.env['HTTP_X_HUB_SIGNATURE'].empty?)
+          return true
+        else
+          Lita.logger.debug("Message sender validation failed") rescue ""
+          return false
+        end
       end
 
       def parse_payload(payload)
         MultiJson.load(payload)
       rescue MultiJson::LoadError => e
-        Lita.logger.error("Could not parse JSON payload from Github: #{e.message}")
-        Lita.logger.debug("Payload was #{payload}")
+        Lita.logger.debug("Could not parse JSON payload from Github: #{e.message}")
         return
       end
 
@@ -146,7 +149,7 @@ module Lita
 
       def commit_messages(commits)
         commits.collect do |commit|
-          "  * #{commit['message']}"
+          "  * #{abbrev_sha(commit['id'])}: #{commit['message']}"
         end
       end
 

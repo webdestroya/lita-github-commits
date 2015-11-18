@@ -8,8 +8,10 @@ module Lita
 
 
       #todo: change this to lita4 config http://docs.lita.io/releases/4/
-      #config :repos, type: Hash, default: {}
-      #config :remember_commits_for, type: Integer, default: 1
+      # config :repos, type: Hash, default: {}
+      # config :remember_commits_for, type: Integer, default: 1
+      # config :github_webhook_secret, type: String, default: nil
+      
       def self.default_config(config)
         config.repos = {}
         config.remember_commits_for = 1
@@ -74,7 +76,7 @@ module Lita
         #payload_body = request.body.read
         #signature = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), config.github_webhook_secret, payload_body)
         #Rack::Utils.secure_compare(signature, request.env['HTTP_X_HUB_SIGNATURE'])
-        config.github_webhook_secret.nil? || (request.env['HTTP_X_HUB_SIGNATURE'] && !request.env['HTTP_X_HUB_SIGNATURE'].empty?)
+        config.github_webhook_secret.nil? || config.github_webhook_secret.empty? || (request.env['HTTP_X_HUB_SIGNATURE'] && !request.env['HTTP_X_HUB_SIGNATURE'].empty?)
       end
 
       def parse_payload(payload)
@@ -103,7 +105,6 @@ module Lita
         commits.each do |commit|
           key = REDIS_KEY_PREFIX + commit['id'][0,SHA_ABBREV_LENGTH]
           commit[:branch] = branch
-          #puts("storing #{commit.to_json} to key #{key} for #{ttl}")
           redis.setex(key,ttl,commit.to_json)
         end
       end

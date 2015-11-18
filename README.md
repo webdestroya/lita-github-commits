@@ -41,9 +41,9 @@ The output from Lita would look something like:
 
 ```
 [GitHub] Got 3 new commits from Garen Torikian on octokitty/testing on the master branch
-  * Test
-  * This is me testing the windows client.
-  * Rename madame-bovary.txt to words/madame-bovary.txt
+  * 32e3221: Test
+  * adc2112: This is me testing the windows client.
+  * 441ab6c: Rename madame-bovary.txt to words/madame-bovary.txt
 ```
 
 ## Usage

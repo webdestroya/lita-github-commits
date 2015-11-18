@@ -22,6 +22,8 @@ gem "lita-github-commits"
 
 * remember_commits_for (Integer) - Number of days lita will remember information about commits it as heard about.  Setting it to 0 effectively disables the "commit/SHA" command handling.  Default: 0 (no memory)
 
+* github_webhook_secret (String) - Optional secret that github uses to sign the webhook requests with.  Currently the configuration's presence only requires that the requests from GitHub be signed.  Default: nil (no signature required)
+
 ### Example Config
 
 ``` ruby
@@ -32,6 +34,7 @@ Lita.configure do |config|
     "username/muted_repo3" => ""
   }
   config.handlers.github_commits.remember_commits_for = 7
+  config.handlers.github_commits.github_webhook_secret = "secr3tC0de"
 end
 ```
 
@@ -48,7 +51,7 @@ The output from Lita would look something like:
 
 ## Usage
 
-You will need to add a [GitHub Webhook](https://developer.github.com/webhooks/) url that points to: `http://address.of.lita/github-commits`
+You will need to add a [GitHub Webhook](https://developer.github.com/webhooks/) url that points to: `http://address.of.lita:8080/github-commits`
 
 In any room that Lita is listening, it will look for statements of the following form and provide the details of the commit if it remembers them.  If it doesn't remember the commit (or has heard about it), it will remain silent unless its a direct command.
 ```

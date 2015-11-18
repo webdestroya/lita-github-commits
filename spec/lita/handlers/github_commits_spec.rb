@@ -31,9 +31,9 @@ describe Lita::Handlers::GithubCommits, lita_handler: true do
           expect(target.room).to eq("#baz")
           expect(message).to eq(<<-RESPONSE.chomp
 [GitHub] Got 3 new commits from Garen Torikian on octokitty/testing on the master branch
-  * Test
-  * This is me testing the windows client.
-  * Rename madame-bovary.txt to words/madame-bovary.txt
+  * c441029: Test
+  * 36c5f22: This is me testing the windows client.
+  * 1481a2d: Rename madame-bovary.txt to words/madame-bovary.txt
                                 RESPONSE
                                )
         end
@@ -54,7 +54,7 @@ describe Lita::Handlers::GithubCommits, lita_handler: true do
           expect(target.room).to eq("#baz")
           expect(message).to eq(<<-RESPONSE.chomp
 [GitHub] Got 1 new commit from Garen Torikian on octokitty/testing on the master branch
-  * Test
+  * c441029: Test
                                 RESPONSE
                                )
         end
@@ -120,9 +120,9 @@ describe Lita::Handlers::GithubCommits, lita_handler: true do
         expect(robot).to receive(:send_message) do |target, message|
           expect(message).to eq(<<-RESPONSE.chomp
 [GitHub] Got 3 new commits authored by Garen Torikian and committed by Repository Owner on octokitty/testing on the master branch
-  * Test
-  * This is me testing the windows client.
-  * Rename madame-bovary.txt to words/madame-bovary.txt
+  * c441029: Test
+  * 36c5f22: This is me testing the windows client.
+  * 1481a2d: Rename madame-bovary.txt to words/madame-bovary.txt
                                 RESPONSE
                                )
         end
@@ -154,7 +154,7 @@ describe Lita::Handlers::GithubCommits, lita_handler: true do
       it "it should respond to a previously seen commit" do
         subject.receive(request, response)
         send_message("do you know about commit/36c5f2243ed24de5?")
-        expect(replies).to include("[GitHub] Commit 36c5f22 committed by Repository Owner on branch master at 2013-02-22 17:07:13 -0500 with message\n'This is me testing the windows client.'\nand changes to files\nREADME.md")
+        expect(replies).to include("[GitHub] Commit 36c5f22 committed by Repository Owner on branch master at 2013-02-22 17:07:13 -0500 with message\n  'This is me testing the windows client.'\nFiles Modified\n  README.md\n\nMore info https://github.com/octokitty/testing/commit/36c5f2243ed24de58284a96f2a643bed8c028658")
       end
     end
 
@@ -199,8 +199,8 @@ describe Lita::Handlers::GithubCommits, lita_handler: true do
       end
 
       it "sends a notification message to the applicable rooms" do
-        expect(Lita.logger).to receive(:error) do |error|
-          expect(error).to include("Could not parse JSON payload from Github")
+        expect(Lita.logger).to receive(:warn) do |warn|
+          expect(warn).to include("Could not parse JSON payload from Github")
         end
         subject.receive(request, response)
       end

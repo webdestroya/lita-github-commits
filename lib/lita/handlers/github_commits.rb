@@ -86,7 +86,7 @@ module Lita
       def parse_payload(payload)
         MultiJson.load(payload)
       rescue MultiJson::LoadError => e
-        Lita.logger.debug("Could not parse JSON payload from Github: #{e.message}")
+        Lita.logger.warn("Could not parse JSON payload from Github: #{e.message}")
         return
       end
 

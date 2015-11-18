@@ -29,7 +29,7 @@ Lita.configure do |config|
   config.handlers.github_commits.repos = {
     "username/repo1" => "#someroom",
     "username/repo2" => ["#someroom", "#someotherroom"],
-    "username/ignored_repo3" => ""
+    "username/muted_repo3" => ""
   }
   config.handlers.github_commits.remember_commits_for = 7
 end

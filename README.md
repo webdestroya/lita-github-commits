@@ -55,7 +55,7 @@ You will need to add a [GitHub Webhook](https://developer.github.com/webhooks/) 
 
 In any room that Lita is listening, it will look for statements of the following form and provide the details of the commit if it remembers them.  If it doesn't remember the commit (or has heard about it), it will remain silent unless its a direct command.
 ```
-... commit/<SHA1>...       - Search for a commit based and return the details
+... commit/<SHA1>...       - Search for a commit and return the details if found
 
 ```
 

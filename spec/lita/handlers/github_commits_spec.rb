@@ -154,7 +154,8 @@ describe Lita::Handlers::GithubCommits, lita_handler: true do
       it "it should respond to a previously seen commit" do
         subject.receive(request, response)
         send_message("do you know about commit/36c5f2243ed24de5?")
-        expect(replies).to include("[GitHub] Commit 36c5f22 committed by Repository Owner on branch master at 2013-02-22 17:07:13 -0500 with message\n  'This is me testing the windows client.'\nFiles Modified\n  README.md\n\nMore info https://github.com/octokitty/testing/commit/36c5f2243ed24de58284a96f2a643bed8c028658")
+        expect(replies).to include(a_string_starting_with("[GitHub] Commit 36c5f22 committed by Repository Owner on branch master at")) 
+        expect(replies).to include(a_string_ending_with("Files Modified\n  README.md\n\nMore info https://github.com/octokitty/testing/commit/36c5f2243ed24de58284a96f2a643bed8c028658"))
       end
     end
 

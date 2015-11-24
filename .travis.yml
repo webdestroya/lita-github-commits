@@ -2,8 +2,9 @@ language: ruby
 rvm:
   - 2.0.0
   - 2.1.2
-script: bundle exec rake
-before_install:
-  - gem update --system
+bundler_args: --binstubs
+script: bundle exec rake --trace
+#before_install:
+#  - gem update --system
 services:
   - redis-server

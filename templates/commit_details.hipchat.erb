@@ -1,16 +1,16 @@
 [GitHub] Commit <%= @commit['id'][0,Lita::Handlers::GithubCommits::SHA_ABBREV_LENGTH]%> committed by <%=@commit['committer'] ? @commit['committer']['name'] : "<unknown>"%> on branch <%=@commit['branch']%> at <%=Time.parse(@commit['timestamp']).getlocal.to_s%> with message
   '<%=@commit['message']%>'
-<%if !@commit['added'].empty? -%>
+<%if !@commit['added'].empty? %>
 Files Added
   <%=@commit['added'].join("\n  ")%>
-<%end -%>
-<%if !@commit['removed'].empty? -%>
+<%end %>
+<%if !@commit['removed'].empty? %>
 Files Removed
   <%=@commit['removed'].join("\n  ")%>
-<%end -%>
-<%if !@commit['modified'].empty? -%>
+<%end %>
+<%if !@commit['modified'].empty? %>
 Files Modified
   <%=@commit['modified'].join("\n  ")%>
-<%end -%>
+<%end %>
 
 More info <%=@commit['url']%>
